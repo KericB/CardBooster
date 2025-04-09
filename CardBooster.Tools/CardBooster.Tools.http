@@ -1,0 +1,6 @@
+@CardBooster.Tools_HostAddress = http://localhost:5091
+
+GET {{CardBooster.Tools_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
