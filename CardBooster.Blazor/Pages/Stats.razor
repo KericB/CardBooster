@@ -1,0 +1,122 @@
+﻿@* Stats.razor *@
+@page "/stats"
+@using CardBooster.Blazor.Services.Interface
+@using Microsoft.AspNetCore.Authorization
+@using CardBooster.Core.Models
+@using CardBooster.Blazor.Services
+@inject IBoosterService BoosterService
+@attribute [Authorize]
+
+<h1 class="text-center my-4">Statistiques de Collection</h1>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Chargement...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Résumé de votre collection</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Cartes collectées:</span>
+                        <span><strong>@cards.Count</strong> / 151</span>
+                    </div>
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar" style="width: @(cards.Count * 100 / 151)%;"
+                             aria-valuenow="@(cards.Count)" aria-valuemin="0" aria-valuemax="151">
+                            @(cards.Count * 100 / 151)%
+                        </div>
+                    </div>
+
+                    <h6 class="mt-4">Par rareté:</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Normales:</span>
+                        <span><strong>@cards.Count(c => c.Rarity == "Normale")</strong></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Rares:</span>
+                        <span><strong>@cards.Count(c => c.Rarity == "Rare")</strong></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Épiques:</span>
+                        <span><strong>@cards.Count(c => c.Rarity == "Épique")</strong></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Légendaires:</span>
+                        <span><strong>@cards.Count(c => c.Rarity == "Légendaire")</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Vos cartes les plus rares</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        @foreach (var card in rareCards)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @card.Name
+                                <span class="badge bg-@GetRarityBadgeClass(card.Rarity) rounded-pill">@card.Rarity</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Cards> cards = new();
+    private List<Cards> rareCards = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            cards = await BoosterService.GetUserCardsAsync();
+
+            // Récupération des cartes les plus rares
+            rareCards = cards
+                .Where(c => c.Rarity == "Légendaire" || c.Rarity == "Épique")
+                .OrderBy(c => c.Rarity == "Légendaire" ? 0 : 1)
+                .ThenBy(c => c.Name)
+                .Take(5)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors du chargement des statistiques: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetRarityBadgeClass(string rarity)
+    {
+        return rarity.ToLower() switch
+        {
+            "normale" => "secondary",
+            "rare" => "primary",
+            "épique" => "info",
+            "légendaire" => "warning",
+            _ => "secondary"
+        };
+    }
+}

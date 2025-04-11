@@ -9,6 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardBooster.Core", "CardBoo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Card.API", "Card.API\Card.API.csproj", "{38F67116-AC20-43AF-A881-16F3C58C7550}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardBooster.Blazor", "CardBooster.Blazor\CardBooster.Blazor.csproj", "{5C0DD5E3-38A5-497C-92EC-FE3FF6FC433A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0B6A03EA-4B97-78A0-A0F6-D888415BA4D7} = {0B6A03EA-4B97-78A0-A0F6-D888415BA4D7}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +32,10 @@ Global
 		{38F67116-AC20-43AF-A881-16F3C58C7550}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38F67116-AC20-43AF-A881-16F3C58C7550}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38F67116-AC20-43AF-A881-16F3C58C7550}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C0DD5E3-38A5-497C-92EC-FE3FF6FC433A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C0DD5E3-38A5-497C-92EC-FE3FF6FC433A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C0DD5E3-38A5-497C-92EC-FE3FF6FC433A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C0DD5E3-38A5-497C-92EC-FE3FF6FC433A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

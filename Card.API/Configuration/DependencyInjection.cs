@@ -1,60 +1,68 @@
-﻿//using CardBooster.Core.Commands;
-//using CardBooster.Core.Commands.Authentication;
-//using CardBooster.Core.Commands.Boosters;
-//using CardBooster.Core.Models;
-//using CardBooster.Core.Queries;
-//using CardBooster.Core.Queries.Users;
-//using CardBooster.Core.Services;
-//using CardBooster.Infrastructure.Command.Authentication;
-//using CardBooster.Infrastructure.Database;
-//using CardBooster.Infrastructure.Handler;
-//using CardBooster.Infrastructure.Queries.Users;
-//using CardBooster.Infrastructure.Repository;
-//using CardBooster.Infrastructure.Security;
-//using CardBooster.Infrastructure.Security.Interfaces;
-//using Microsoft.AspNetCore.Authentication.JwtBearer;
-//using Microsoft.IdentityModel.Tokens;
-//using System.Text;
+﻿// DependencyInjection.cs
+namespace CardBooster.API.Configuration;
 
-//namespace Card.API.Configuration
-//{
-//    public static class DependencyInjection
-//    {
-//        public static int GetUserCardQueryHandler { get; private set; }
+using CardBooster.Core.Commands;
+using CardBooster.Core.Commands.Authentication;
+using CardBooster.Core.Commands.Boosters;
+using CardBooster.Core.Models;
+using CardBooster.Core.Queries;
+using CardBooster.Core.Queries.Users;
+using CardBooster.Core.Services;
+using CardBooster.Infrastructure.Command.Authentication;
+using CardBooster.Infrastructure.Database;
+using CardBooster.Infrastructure.Handler;
+using CardBooster.Infrastructure.Queries.Users;
+using CardBooster.Infrastructure.Repository;
+using CardBooster.Infrastructure.Security;
+using CardBooster.Infrastructure.Security.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
-//        public static IServiceCollection AddCardApi(this IServiceCollection services, IConfiguration configuration)
-//        {
-//            services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
-//            services.AddSingleton<IPasswordHasher, PasswordHasher>();
-//            services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
-//            services.AddSingleton<IAuthDb, AuthDb>();
+public static class DependencyInjection
+{
+    public static IServiceCollection AddCardBoosterServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Configuration JWT
+        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
-//            services.AddScoped<ICommandAsyncHandler<LoginUserCommand>, LoginUserCommandHandler>();
-//            services.AddScoped<ICommandAsyncHandler<OpenBoosterCommand>, OpenBoosterCommandHandler>();
-//            services.AddScoped<ICommandAsyncHandler<LoginUserCommand>, LoginUserCommandHandler>();
-//            services.AddScoped<IQueryAsyncHandler<GetUserByEmailQuery, User>, GetUserByEmailQueryHandler>();
-//            services.AddScoped<IQueryAsyncHandler<GetUserCardQuery, List<Cards>>, GetUserCardsQueryHandler>();
+        // Sécurité
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
 
-//           var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
-//            services.AddAuthentication(option => {
-//                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//            })
-//                .AddJwtBearer(option =>
-//                {
-//                    option.TokenValidationParameters = new TokenValidationParameters
-//                    {
-//                        ValidateIssuer = true,
-//                        ValidateAudience = true,
-//                        ValidateLifetime = true,
-//                        ValidateIssuerSigningKey = true,
-//                        ValidIssuer = jwtSettings.Issuer,
-//                        ValidAudience = jwtSettings.Audience,
-//                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
-//                    };
-//                });
+        // Base de données
+        services.AddSingleton<IAuthDb, AuthDb>();
 
-//            return services;
-//        }
-//    }
-//}
+        // Commands
+        services.AddScoped<ICommandAsyncHandler<RegisterUserCommand>, RegisterUserCommandHandler>();
+        services.AddScoped<ICommandAsyncHandler<LoginUserCommand>, LoginUserCommandHandler>();
+        services.AddScoped<ICommandAsyncHandler<OpenBoosterCommand>, OpenBoosterCommandHandler>();
+
+        // Queries
+        services.AddScoped<IQueryAsyncHandler<GetUserByEmailQuery, User>, GetUserByEmailQueryHandler>();
+        services.AddScoped<IQueryAsyncHandler<GetUserCardQuery, List<Cards>>, GetUserCardsQueryHandler>();
+
+        // Configuration JWT Bearer
+        var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtSettings.Issuer,
+                ValidAudience = jwtSettings.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
+            };
+        });
+
+        return services;
+    }
+}

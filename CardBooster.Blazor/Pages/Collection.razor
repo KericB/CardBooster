@@ -1,0 +1,111 @@
+﻿@* Collection.razor *@
+@page "/collection"
+@using Microsoft.AspNetCore.Authorization
+@using CardBooster.Core.Models
+@using CardBooster.Blazor.Services
+@inject IBoosterService BoosterService
+@attribute [Authorize]
+
+<h1 class="text-center my-4">Ma Collection</h1>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-2">Chargement de votre collection...</p>
+    </div>
+}
+else if (cards == null || !cards.Any())
+{
+    <div class="alert alert-info text-center">
+        <h4>Aucune carte dans votre collection</h4>
+        <p>Ouvrez des boosters pour commencer à collectionner des cartes Pokémon !</p>
+        <a href="/" class="btn btn-primary">Aller ouvrir un booster</a>
+    </div>
+}
+else
+{
+    <div class="collection-filters mb-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="rarityFilter" class="form-label">Filtrer par rareté</label>
+                <select id="rarityFilter" class="form-select" @onchange="FilterByRarity">
+                    <option value="">Toutes les raretés</option>
+                    <option value="Normale">Normale</option>
+                    <option value="Rare">Rare</option>
+                    <option value="Épique">Épique</option>
+                    <option value="Légendaire">Légendaire</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="searchFilter" class="form-label">Rechercher</label>
+                <input type="text" id="searchFilter" class="form-control" placeholder="Nom du Pokémon" 
+                       @oninput="FilterByName" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-4">
+        @foreach (var card in filteredCards)
+        {
+            <div class="col">
+                <CardDisplay Card="@card" />
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Card> cards = new();
+    private List<Card> filteredCards = new();
+    private bool isLoading = true;
+    private string nameFilter = string.Empty;
+    private string rarityFilter = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            cards = await BoosterService.GetUserCardsAsync();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            // Gérer l'erreur (peut-être afficher un message à l'utilisateur)
+            Console.WriteLine($"Erreur lors du chargement des cartes: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void FilterByRarity(ChangeEventArgs e)
+    {
+        rarityFilter = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void FilterByName(ChangeEventArgs e)
+    {
+        nameFilter = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        filteredCards = cards;
+
+        if (!string.IsNullOrWhiteSpace(rarityFilter))
+        {
+            filteredCards = filteredCards.Where(c => c.Rarity == rarityFilter).ToList();
+        }
+
+        if (!string.IsNullOrWhiteSpace(nameFilter))
+        {
+            filteredCards = filteredCards.Where(c => c.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+}

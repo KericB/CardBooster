@@ -11,11 +11,14 @@ using System.Threading.Tasks;
 
 namespace CardBooster.Core.Repositories
 {
-    public interface IOpenBoosterRepo : 
-        IQueryAsyncHandler<GetUserCardQuery, User>,
-        ICommandAsyncHandler<OpenBoosterCommand>,
-        IQueryAsyncHandler<GetUserCardQuery, List<Cards>>
+    public interface IOpenBoosterRepo :
+    ICommandAsyncHandler<OpenBoosterCommand>,
+    IQueryAsyncHandler<GetUserCardQuery, IEnumerable<Cards>>,
+    IQueryAsyncHandler<GetUserByEmailQuery, User>
     {
 
     }
+
 }
+
+

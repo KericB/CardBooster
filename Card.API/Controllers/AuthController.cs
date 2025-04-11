@@ -35,5 +35,21 @@ namespace Card.API.Controllers
                 Message = "Connexion réussie"
             });
         }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
+        {
+            var result = await _registerHandler.ExecuteAsync(command);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { Error = result.ErrorMessage });
+            }
+            return Ok(new
+            {
+                Message = "Inscription réussie"
+            });
+        }
+
+
     }
 }

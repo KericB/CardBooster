@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace CardBooster.Core.Queries.Users
 {
-    public interface GetUserCardQuery : IQueryDefinition
+    public class GetUserCardQuery : IQueryDefinition
     {
-        public int UserId { get; }
+        public int UserId { get; set; }
     }
 }

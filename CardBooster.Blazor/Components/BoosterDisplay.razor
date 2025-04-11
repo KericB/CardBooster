@@ -1,0 +1,37 @@
+﻿@* BoosterDisplay.razor *@
+@using CardBooster.Blazor.Models
+
+<div class="booster-overlay">
+    <div class="booster-container">
+        <div class="booster-header">
+            <h3>Nouveau Booster !</h3>
+            <button type="button" class="btn-close" @onclick="Close" aria-label="Close"></button>
+        </div>
+        
+        <div class="booster-cards">
+            @foreach (var card in Booster.Cards)
+            {
+                <div class="booster-card-animation">
+                    <CardDisplay Card="@card" />
+                </div>
+            }
+        </div>
+        
+        <div class="booster-footer">
+            <button class="btn btn-primary" @onclick="Close">Fermer</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public BoosterModel Booster { get; set; } = new();
+    
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+    
+    private async Task Close()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

@@ -1,0 +1,91 @@
+﻿@* Index.razor *@
+@page "/"
+@using Microsoft.AspNetCore.Authorization
+@using CardBooster.Blazor.Services
+@inject IBoosterService BoosterService
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<h1 class="text-center my-4">CardBooster</h1>
+
+<div class="dashboard">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card dashboard-card">
+                <div class="card-body">
+                    <h5 class="card-title">Ouvrir un booster</h5>
+                    <p class="card-text">Ouvrez un nouveau booster de 5 cartes aléatoires.</p>
+                    <button @onclick="OpenBooster" class="btn btn-primary" disabled="@isOpeningBooster">
+                        @if (isOpeningBooster)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span>Ouverture...</span>
+                        }
+                        else
+                        {
+                            <span>Ouvrir un booster</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card dashboard-card">
+                <div class="card-body">
+                    <h5 class="card-title">Ma collection</h5>
+                    <p class="card-text">Consultez toutes les cartes de votre collection.</p>
+                    <a href="/collection" class="btn btn-secondary">Voir ma collection</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card dashboard-card">
+                <div class="card-body">
+                    <h5 class="card-title">Déconnexion</h5>
+                    <p class="card-text">Déconnectez-vous de votre compte.</p>
+                    <button @onclick="Logout" class="btn btn-danger">Se déconnecter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (currentBooster != null)
+{
+    <BoosterDisplay Booster="@currentBooster" OnClose="CloseBoosterDisplay" />
+}
+
+@code {
+    private bool isOpeningBooster = false;
+    private BoosterModel? currentBooster;
+
+    private async Task OpenBooster()
+    {
+        isOpeningBooster = true;
+        try
+        {
+            currentBooster = await BoosterService.OpenBoosterAsync();
+        }
+        catch (Exception ex)
+        {
+            // Gérer l'erreur (peut-être afficher un message à l'utilisateur)
+            Console.WriteLine($"Erreur lors de l'ouverture du booster: {ex.Message}");
+        }
+        finally
+        {
+            isOpeningBooster = false;
+        }
+    }
+
+    private void CloseBoosterDisplay()
+    {
+        currentBooster = null;
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.Logout();
+        NavigationManager.NavigateTo("/login");
+    }
+}

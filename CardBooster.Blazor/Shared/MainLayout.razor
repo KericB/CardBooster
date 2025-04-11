@@ -1,0 +1,18 @@
+﻿@* MainLayout.razor *@
+@inherits LayoutComponentBase
+@using CardBooster.BlazorWasm.Services
+@inject IAuthService AuthService
+
+<div class="page">
+    <AuthorizeView>
+        <Authorized>
+            <NavMenu />
+        </Authorized>
+    </AuthorizeView>
+
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>

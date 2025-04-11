@@ -1,0 +1,37 @@
+﻿@* CardDisplay.razor *@
+@using CardBooster.Core.Models
+
+<div class="card card-pokemon @GetRarityClass(Card.Rarity)">
+    <div class="card-body">
+        <div class="card-rarity">@Card.Rarity</div>
+        <h5 class="card-title">@Card.Name</h5>
+
+        <div class="card-image">
+            <img src="@GetImageUrl(Card.Name)" alt="@Card.Name" class="img-fluid" />
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Card Card { get; set; } = new();
+
+    private string GetRarityClass(string rarity)
+    {
+        return rarity.ToLower() switch
+        {
+            "normale" => "card-normal",
+            "rare" => "card-rare",
+            "épique" => "card-epic",
+            "légendaire" => "card-legendary",
+            _ => ""
+        };
+    }
+
+    private string GetImageUrl(string pokemonName)
+    {
+        // Idéalement, vous auriez une façon de récupérer l'image du Pokémon
+        // Ici, c'est juste un exemple qui utilise une API externe
+        return $"https://img.pokemondb.net/artwork/large/{pokemonName.ToLower()}.jpg";
+    }
+}

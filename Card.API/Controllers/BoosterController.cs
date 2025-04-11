@@ -43,5 +43,22 @@ namespace Card.API.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("cards")]
+
+        public async Task<IActionResult> GetUserCards()
+        {
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
+            {
+                return BadRequest(new { Error = "Utilisateur non authentifié correctement" });
+            }
+            var query = new GetUserCardQuery { UserId = userId };
+            var result = await _getUserCardsHandler.ExecuteAsync(query);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { Error = result.ErrorMessage });
+            }
+            return Ok(result.Content);
+        }
     }
 }

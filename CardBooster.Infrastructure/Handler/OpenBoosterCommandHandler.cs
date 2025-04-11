@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace CardBooster.Infrastructure.Handler
 {
-    public class OpenBoosterCommandHandler : IOpenBoosterRepo
+    public class OpenBoosterCommandHandler : ICommandAsyncHandler<OpenBoosterCommand>
     {
         private readonly IAuthDb _authDb;
 
@@ -88,6 +88,10 @@ namespace CardBooster.Infrastructure.Handler
             }
         }
 
+        Task<Result> ICommandAsyncHandler<OpenBoosterCommand>.ExecuteAsync(OpenBoosterCommand command)
+        {
+            throw new NotImplementedException();
+        }
 
         private string HandleSqlException(SqlException ex) {
             return ex.Number switch 

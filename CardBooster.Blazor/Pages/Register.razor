@@ -1,0 +1,103 @@
+﻿@* Register.razor *@
+@page "/register"
+@using CardBooster.Blazor.Models
+@using CardBooster.Blazor.Services
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+
+<div class="card login-card">
+    <h3 class="card-header">Créer un compte</h3>
+    <div class="card-body">
+        <EditForm Model="@registerModel" OnValidSubmit="HandleRegistration">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group mb-3">
+                <label for="name">Nom</label>
+                <InputText id="name" class="form-control" @bind-Value="registerModel.Name" />
+                <ValidationMessage For="@(() => registerModel.Name)" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="email">Email</label>
+                <InputText id="email" class="form-control" @bind-Value="registerModel.Email" />
+                <ValidationMessage For="@(() => registerModel.Email)" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="password">Mot de passe</label>
+                <InputText type="password" id="password" class="form-control" @bind-Value="registerModel.Password" />
+                <ValidationMessage For="@(() => registerModel.Password)" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="confirmPassword">Confirmer le mot de passe</label>
+                <InputText type="password" id="confirmPassword" class="form-control" @bind-Value="registerModel.ConfirmPassword" />
+                <ValidationMessage For="@(() => registerModel.ConfirmPassword)" />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span>Traitement en cours...</span>
+                }
+                else
+                {
+                    <span>S'inscrire</span>
+                }
+            </button>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger mt-3" role="alert">
+                    @errorMessage
+                </div>
+            }
+        </EditForm>
+
+        <div class="mt-3 text-center">
+            <p>Déjà un compte ? <a href="login">Se connecter</a></p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private UserRegisterModel registerModel = new();
+    private bool isSubmitting = false;
+    private string? errorMessage;
+
+    private async Task HandleRegistration()
+    {
+        isSubmitting = true;
+        errorMessage = null;
+
+        try
+        {
+            if (registerModel.Password != registerModel.ConfirmPassword)
+            {
+                errorMessage = "Les mots de passe ne correspondent pas.";
+                return;
+            }
+
+            var result = await AuthService.Register(registerModel.Name, registerModel.Email, registerModel.Password);
+            
+            if (result)
+            {
+                NavigationManager.NavigateTo("login");
+            }
+            else
+            {
+                errorMessage = "L'inscription a échoué. Veuillez réessayer.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Une erreur est survenue: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}
